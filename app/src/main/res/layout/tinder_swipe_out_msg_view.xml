@@ -9,8 +9,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="40dp"
-        android:text="Reject"
-        android:textColor="@android:color/holo_red_light"
+        android:text="Seen it!"
+        android:textColor="@android:color/holo_blue_bright"
         android:textSize="32sp"
         android:textStyle="bold" />
 </LinearLayout>

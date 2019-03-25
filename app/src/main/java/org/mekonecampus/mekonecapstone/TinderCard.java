@@ -41,14 +41,15 @@ public class TinderCard {
     @SwipeView
     android.view.View mSwipeView;
 
-    private Profile mProfile;
+    //private Profile mProfile;
+    private Article mArticle;
     private Context mContext;
     private Point mCardViewHolderSize;
     private Callback mCallback;
 
-    public TinderCard(Context context, Profile profile, Point cardViewHolderSize, Callback callback) {
+    public TinderCard(Context context, Article article, Point cardViewHolderSize, Callback callback) {
         mContext = context;
-        mProfile = profile;
+        mArticle = article;
         mCardViewHolderSize = cardViewHolderSize;
         mCallback = callback;
     }
@@ -58,12 +59,12 @@ public class TinderCard {
         //ImageView ivBasicImage = (ImageView) findViewById(R.id.ivBasicImage);
         //Picasso.with(mContext).load(mProfile.getImageUrl()).into(profileImageView);
         //Glide.with(mContext).load(mProfile.getImageUrl()).dontAnimate().into(profileImageView);
-        Glide.with(mContext).load(mProfile.getImageUrl())
+        Glide.with(mContext).load(mArticle.PicUrl)
                 .bitmapTransform(new RoundedCornersTransformation(mContext, Utils.dpToPx(7), 0,
                         RoundedCornersTransformation.CornerType.TOP))
                 .into(profileImageView);
-        nameAgeTxt.setText(mProfile.getName() + ", " + mProfile.getAge());
-        locationNameTxt.setText(mProfile.getLocation());
+        nameAgeTxt.setText(mArticle.Title + ", " + mArticle.Body);
+        locationNameTxt.setText(mArticle.Custom3 + " Restaurant");
         mSwipeView.setAlpha(1);
     }
 
