@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:ndroid="http://schemas.android.com/tools"
     android:background="@color/grey"
     android:orientation="vertical">
 
@@ -13,28 +14,76 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/rejectBtn"
+            android:id="@+id/cancelBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@drawable/ic_cancel_black_24dp" />
 
         <ImageButton
-            android:id="@+id/acceptBtn"
+            android:id="@+id/homeBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginLeft="30dp"
             android:background="@drawable/ic_home_black_24dp" />
 
         <ImageButton
-            android:id="@+id/undoBtn"
+            android:id="@+id/saveBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginLeft="30dp"
             android:background="@drawable/ic_save_black_24dp" />
     </LinearLayout>
 
-    <com.mindorks.placeholderview.SwipeDirectionalView
-        android:id="@+id/swipeView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/imageV"
+            android:layout_width="350dp"
+            android:layout_height="250dp"
+            android:layout_marginTop="45dp"
+            android:visibility="invisible"
+            android:src="@drawable/ic_home_black_24dp"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/notes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Notes"
+            android:textSize="15dp"
+            android:paddingTop="1dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingBottom="15dp"
+            android:layout_alignParentLeft="true" />
+
+        <EditText
+            android:id="@+id/editNotes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_toRightOf="@id/notes" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+        <ImageButton
+            android:id="@+id/imageBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="visible"
+            android:background="@drawable/ic_photo_camera_black_24dp" />
+    </LinearLayout>
+
 </FrameLayout>
