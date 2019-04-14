@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         Article a = new Article();
         a.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/diasporaLogoBig.JPG";
         a.Title = "MékonéCampus";
-        a.Custom3 = "Educate Movitave Inspire";
+        a.Custom3 = "What The Pho";
         a.Body = "Redmond WA";
         //a.Title = "Welcome";
         //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
