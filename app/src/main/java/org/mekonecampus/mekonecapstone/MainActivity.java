@@ -1,11 +1,18 @@
 package org.mekonecampus.mekonecapstone;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
@@ -28,11 +35,20 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.mekonecampus.mekonecapstone.AddActivity.lati;
+import static org.mekonecampus.mekonecapstone.AddActivity.longi;
+import static org.mekonecampus.mekonecapstone.AddActivity.myAddress;
 
 public class MainActivity extends AppCompatActivity implements TinderCard.Callback {
 
     private SwipeDirectionalView mSwipeView;
+    private static Activity activity;
     private Context mContext;
     private int mAnimationDuration = 300;
     private boolean isToUndo = false;
@@ -40,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     //static int count = 0;
     static List<Article> articles = new ArrayList<>();
     //static Article arto = new Article();
+    static String zipcode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,15 +92,38 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             mSwipeView.addView(new TinderCard(mContext, profile, cardViewHolderSize, this));
         }*/
 
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
+        }
+        else{
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            longi = location.getLongitude();
+            lati= location.getLatitude();
+        }
+
+        Geocoder gCoder = new Geocoder(mContext);
+        List<Address> addresses = null;
+        try {
+            addresses = gCoder.getFromLocation(lati, longi, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && addresses.size() > 0) {
+            myAddress = addresses.get(0).getAddressLine(0);
+            String[] adds = myAddress.split("\\,");
+            String[] mycode = adds[2].split(" ");
+            zipcode = mycode[2];
+            Toast.makeText(mContext, zipcode, Toast.LENGTH_LONG).show();
+        }
+
         Article a = new Article();
         a.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/diasporaLogoBig.JPG";
         a.Title = "MékonéCampus";
-        a.Custom3 = "What The Pho";
-        a.Body = "Redmond WA";
-        //a.Title = "Welcome";
-        //DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        //LocalDateTime now = LocalDateTime.now();
-        //article1.Timestamp = now + "";
+        a.Custom2 = "98007";
+        a.Custom3 = "Centre Polyvalent";
+        a.Body = "Bellevue WA";
         articles.add(a);
 
         //call api
@@ -92,9 +132,13 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        //get most recent articles
         for (Article article : articles) {
-            mSwipeView.addView(new TinderCard(mContext, article, cardViewHolderSize, this));
+            if(article.Custom2 != null) {
+                if (article.Custom2.equals(zipcode) || article.Custom3.equals("Centre Polyvalent")) {
+                    mSwipeView.addView(new TinderCard(mContext, article, cardViewHolderSize, this));
+                }
+            }
         }
 
         findViewById(R.id.rejectBtn).setOnClickListener(new View.OnClickListener() {
