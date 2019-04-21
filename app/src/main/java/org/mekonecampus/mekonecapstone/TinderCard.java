@@ -63,8 +63,8 @@ public class TinderCard {
                 .bitmapTransform(new RoundedCornersTransformation(mContext, Utils.dpToPx(7), 0,
                         RoundedCornersTransformation.CornerType.TOP))
                 .into(profileImageView);
-        nameAgeTxt.setText(mArticle.Title + ", " + mArticle.Body);
-        locationNameTxt.setText(mArticle.Custom3 + " (Restaurant)");
+        nameAgeTxt.setText(mArticle.Title + ", (" + mArticle.Custom3 + ")");
+        locationNameTxt.setText(mArticle.Body);
         mSwipeView.setAlpha(1);
     }
 

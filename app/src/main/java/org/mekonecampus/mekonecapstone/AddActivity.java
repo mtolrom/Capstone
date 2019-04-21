@@ -8,6 +8,10 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
@@ -36,8 +40,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpEntity;
@@ -57,11 +63,15 @@ public class AddActivity extends AppCompatActivity {
     static String category = "sokika";
     static Article arto = new Article();
     static ImageView img;
-    static  ImageView imgB;
+    static ImageView imgB;
     static EditText notes;
     static File finalFile;
     static String picName;
     static String myUri;
+    static String myAddress;
+    static Double longi;
+    static Double lati;
+    static String zipcode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +83,32 @@ public class AddActivity extends AppCompatActivity {
         img = findViewById(R.id.imageV);
         imgB = findViewById(R.id.imageBtn);
         notes = findViewById(R.id.editNotes);
+
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
+        }
+        else{
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            longi = location.getLongitude();
+            lati= location.getLatitude();
+        }
+
+        Geocoder gCoder = new Geocoder(mContext);
+        List<Address> addresses = null;
+        try {
+            addresses = gCoder.getFromLocation(lati, longi, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && addresses.size() > 0) {
+            myAddress = addresses.get(0).getAddressLine(0);
+            String[] adds = myAddress.split("\\,");
+            String[] mycode = adds[2].split(" ");
+            zipcode = mycode[2];
+            Toast.makeText(mContext, longi + " - " + lati, Toast.LENGTH_LONG).show();
+        }
 
         findViewById(R.id.imageBtn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,7 +152,7 @@ public class AddActivity extends AppCompatActivity {
 
                 arto.Id = "mekonecampus";
                 arto.Title = notes.getText().toString();
-                arto.Body = "Moundou, Tchad";
+                arto.Body = myAddress;
                 arto.Custom3 = date;
                 arto.Category = category;
                 arto.LikesNumber = 0;
@@ -127,6 +163,7 @@ public class AddActivity extends AppCompatActivity {
                 arto.DateCreated = df.format(calobj.getTime());
                 arto.Status = "active";
                 arto.Custom5 = "mekonecampus";
+                arto.Custom2 = zipcode;
 
                 //call api
                 try {
