@@ -24,7 +24,9 @@ import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipeDirectionalView;
 import com.mindorks.placeholderview.listeners.ItemRemovedListener;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     static String category = "sokika";
     //static int count = 0;
     static List<Article> articles = new ArrayList<>();
-    //static Article arto = new Article();
+    static Article arto = new Article();
     static String zipcode;
 
     @Override
@@ -136,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         for (Article article : articles) {
             if(article.Custom2 != null) {
                 if (article.Custom2.equals(zipcode) || article.Custom3.equals("Centre Polyvalent")) {
+                    arto = article;
                     mSwipeView.addView(new TinderCard(mContext, article, cardViewHolderSize, this));
                 }
             }
@@ -179,8 +182,78 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
 
     @Override
     public void onSwipeUp() {
-        Toast.makeText(this, "Awesome!!!", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Awesome!!!", Toast.LENGTH_SHORT).show();
+        arto = articles.get(0);
+        //call api
+        try {
+            new EditArticle(this).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         isToUndo = true;
+    }
+
+    public static Article APICall() throws IOException {
+        try {
+            arto.Custom4 = "flagged";
+            URL url = new URL("http://mekonecampusapi.azurewebsites.net/api/Articles");
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+            httpCon.setDoOutput(true);
+            httpCon.setRequestMethod("PUT");
+
+            httpCon.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            String input = mapper.writeValueAsString(arto);
+            OutputStream os = httpCon.getOutputStream();
+            os.write(input.getBytes());
+            os.write(input.getBytes("UTF-8"));
+            os.flush();
+            os.close();
+            httpCon.connect();
+
+            if (httpCon.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + httpCon.getResponseCode());
+            }
+
+            //read the inputstream and print it
+            String result;
+            BufferedInputStream bis = new BufferedInputStream(httpCon.getInputStream());
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            int result2 = bis.read();
+            while(result2 != -1) {
+                buf.write((byte) result2);
+                result2 = bis.read();
+            }
+            result = buf.toString();
+            //System.out.println(result);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return arto;
+    }
+
+    private static class EditArticle extends AsyncTask<Void, Void, Article> {
+        private WeakReference<Activity> weakActivity;
+        public EditArticle(Activity activity) {
+            weakActivity = new WeakReference<>(activity);
+        }
+        @Override
+        protected Article doInBackground(Void... voids) {
+            Activity activity = weakActivity.get();
+            if(activity == null) {
+                return null;
+            }
+            try {
+                APICall();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
     }
 
     //make api call

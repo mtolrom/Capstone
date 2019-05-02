@@ -107,7 +107,7 @@ public class AddActivity extends AppCompatActivity {
             String[] adds = myAddress.split("\\,");
             String[] mycode = adds[2].split(" ");
             zipcode = mycode[2];
-            Toast.makeText(mContext, longi + " - " + lati, Toast.LENGTH_LONG).show();
+            //Toast.makeText(mContext, longi + " - " + lati, Toast.LENGTH_LONG).show();
         }
 
         findViewById(R.id.imageBtn).setOnClickListener(new View.OnClickListener() {
