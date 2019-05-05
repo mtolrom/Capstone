@@ -72,6 +72,11 @@ public class AddActivity extends AppCompatActivity {
     static Double longi;
     static Double lati;
     static String zipcode;
+    static String myState;
+    static String myCountry;
+    static String mySecondLineAddr;
+    static String myHome;
+    static String myApartment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +109,12 @@ public class AddActivity extends AppCompatActivity {
         }
         if (addresses != null && addresses.size() > 0) {
             myAddress = addresses.get(0).getAddressLine(0);
-            String[] adds = myAddress.split("\\,");
-            String[] mycode = adds[2].split(" ");
-            zipcode = mycode[2];
+            String[] adds = myAddress.split(" ");
+            myHome = adds[0];
+            myApartment = addresses.get(0).getAddressLine(1);
+            myState = adds[adds.length - 3];
+            myCountry = adds[adds.length - 1];
+            zipcode = adds[adds.length - 2].replace(',', ' ');
             //Toast.makeText(mContext, longi + " - " + lati, Toast.LENGTH_LONG).show();
         }
 
@@ -155,8 +163,8 @@ public class AddActivity extends AppCompatActivity {
                 arto.Body = myAddress;
                 arto.Custom3 = date;
                 arto.Category = category;
-                arto.LikesNumber = 0;
-                arto.ViewsNumber = 0;
+                //arto.LikesNumber = 0;
+                //arto.ViewsNumber = 0;
                 arto.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/" + picName;
                 arto.PartitionKey = "sokika";
                 arto.RowKey = dt;
@@ -164,6 +172,9 @@ public class AddActivity extends AppCompatActivity {
                 arto.Status = "active";
                 arto.Custom5 = "mekonecampus";
                 arto.Custom2 = zipcode;
+                arto.Custom1 = myCountry;
+                arto.Custom5 = myState;
+                //arto.Custom4 = "flagged";
 
                 //call api
                 try {
