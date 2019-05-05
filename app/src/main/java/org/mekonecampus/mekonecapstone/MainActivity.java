@@ -34,9 +34,12 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,13 +61,24 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     //static int count = 0;
     static List<Article> articles = new ArrayList<>();
     static Article arto = new Article();
+    static Visitor visito = new Visitor();
+    static String myAddress;
+    static Double longi;
+    static Double lati;
     static String zipcode;
+    static String myState;
+    static String myCountry;
+    static String mySecondLineAddr;
+    static String myHome;
+    static String myApartment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mContext = getApplicationContext();
+        activity = MainActivity.this;
         mSwipeView = (SwipeDirectionalView) findViewById(R.id.swipeView);
         mContext = getApplicationContext();
 
@@ -114,9 +128,12 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         }
         if (addresses != null && addresses.size() > 0) {
             myAddress = addresses.get(0).getAddressLine(0);
-            String[] adds = myAddress.split("\\,");
-            String[] mycode = adds[2].split(" ");
-            zipcode = mycode[2];
+            String[] adds = myAddress.split(" ");
+            myHome = adds[0];
+            myApartment = addresses.get(0).getAddressLine(1);
+            myState = adds[adds.length - 3];
+            myCountry = adds[adds.length - 1];
+            zipcode = adds[adds.length - 2].replace(',', ' ');
             Toast.makeText(mContext, zipcode, Toast.LENGTH_LONG).show();
         }
 
@@ -127,6 +144,35 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         a.Custom3 = "Centre Polyvalent";
         a.Body = "Bellevue WA";
         articles.add(a);
+
+        DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+        Calendar calobj = Calendar.getInstance();
+        String dt = df.format(calobj.getTime()).toString().replace('/', '-').replace(' ', '-').replace(':', '-');
+
+        visito.Browser = myAddress;
+        visito.BrowserDetails = myHome;
+        visito.Category = category;
+        visito.Custom1 = myState;
+        visito.Custom2 = myCountry;
+        visito.Custom3 = myApartment;
+        visito.Custom4 = mySecondLineAddr;
+        visito.Custom5 = zipcode;
+        visito.Hostname = longi.toString();
+        visito.Id = "mekonecampus";
+        visito.Mobile = lati.toString();
+        visito.Status = "active";
+        visito.VisitDate = df.format(calobj.getTime());
+        visito.NetworkIP = "";
+        visito.PartitionKey = "sokika";
+        visito.RowKey = dt;
+        //visito.Key = "";
+
+        //call api
+        try {
+            new CreateVisitor(this).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         //call api
         try {
@@ -191,6 +237,70 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             e.printStackTrace();
         }
         isToUndo = true;
+    }
+
+    private static class CreateVisitor extends AsyncTask<Void, Void, Visitor> {
+        private WeakReference<Activity> weakActivity;
+        public CreateVisitor(Activity activity) {
+            weakActivity = new WeakReference<>(activity);
+        }
+        @Override
+        protected Visitor doInBackground(Void... voids) {
+            Activity activity = weakActivity.get();
+            if(activity == null) {
+                return null;
+            }
+            try {
+                APICallVisitor();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    public static void APICallVisitor() throws IOException {
+        try {
+            URL url = new URL("http://mekonecampusapi.azurewebsites.net/api/Visitors");
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+            httpCon.setDoOutput(true);
+            httpCon.setRequestMethod("POST");
+
+            httpCon.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            String input = mapper.writeValueAsString(visito);
+            OutputStream os = httpCon.getOutputStream();
+            os.write(input.getBytes());
+            os.write(input.getBytes("UTF-8"));
+            os.flush();
+            os.close();
+            httpCon.connect();
+
+            int rCode = httpCon.getResponseCode();
+
+            /*if (httpCon.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + httpCon.getResponseCode());
+            }*/
+
+            //read the inputstream and print it
+            /*String result;
+            BufferedInputStream bis = new BufferedInputStream(httpCon.getInputStream());
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            int result2 = bis.read();
+            while(result2 != -1) {
+                buf.write((byte) result2);
+                result2 = bis.read();
+            }
+            result = buf.toString();*/
+            //System.out.println(result);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //return visito;
     }
 
     public static Article APICall() throws IOException {
