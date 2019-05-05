@@ -135,6 +135,16 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.webBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "http://www.mekonecampus.org";
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+            }
+        });
+
         findViewById(R.id.homeBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -163,8 +173,8 @@ public class AddActivity extends AppCompatActivity {
                 arto.Body = myAddress;
                 arto.Custom3 = date;
                 arto.Category = category;
-                //arto.LikesNumber = 0;
-                //arto.ViewsNumber = 0;
+                arto.LikesNumber = 0;
+                arto.ViewsNumber = 0;
                 arto.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/" + picName;
                 arto.PartitionKey = "sokika";
                 arto.RowKey = dt;
@@ -174,7 +184,7 @@ public class AddActivity extends AppCompatActivity {
                 arto.Custom2 = zipcode;
                 arto.Custom1 = myCountry;
                 arto.Custom5 = myState;
-                //arto.Custom4 = "flagged";
+                arto.Custom4 = "ok";
 
                 //call api
                 try {
