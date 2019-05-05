@@ -28,6 +28,13 @@
             android:background="@drawable/ic_home_black_24dp" />
 
         <ImageButton
+            android:id="@+id/webBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:background="@drawable/ic_laptop_windows_black_24dp" />
+
+        <ImageButton
             android:id="@+id/saveBtn"
             android:layout_width="50dp"
             android:layout_height="50dp"

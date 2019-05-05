@@ -121,10 +121,14 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
 
         Geocoder gCoder = new Geocoder(mContext);
         List<Address> addresses = null;
-        try {
-            addresses = gCoder.getFromLocation(lati, longi, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(lati != null) {
+            if(longi != null) {
+                try {
+                    addresses = gCoder.getFromLocation(lati, longi, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         if (addresses != null && addresses.size() > 0) {
             myAddress = addresses.get(0).getAddressLine(0);
@@ -141,7 +145,11 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         a.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/diasporaLogoBig.JPG";
         a.Title = "MékonéCampus";
         a.Custom2 = "98007";
+        a.Category = category;
         a.Custom3 = "Centre Polyvalent";
+        a.Custom4 = "ok";
+        a.Custom5 = "WA";
+        a.DateCreated = "09/15/2011";
         a.Body = "Bellevue WA";
         articles.add(a);
 
@@ -183,9 +191,22 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         //get most recent articles
         for (Article article : articles) {
             if(article.Custom2 != null) {
-                if (article.Custom2.equals(zipcode) || article.Custom3.equals("Centre Polyvalent")) {
-                    arto = article;
-                    mSwipeView.addView(new TinderCard(mContext, article, cardViewHolderSize, this));
+                if(article.Custom4 != null) {
+                    if (!article.Custom4.equals("flagged")) {
+                        if (article.Custom2.equals(zipcode) || article.Custom3.equals("Centre Polyvalent")) {
+                            arto = article;
+                            arto.ViewsNumber += 1;
+                            //call api
+                            if (!a.Custom4.equals("ok")) {
+                                try {
+                                    new IncreaseView(this).execute();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                                mSwipeView.addView(new TinderCard(mContext, article, cardViewHolderSize, this));
+                        }
+                    }
                 }
             }
         }
@@ -203,6 +224,15 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                 //mSwipeView.doSwipe(true);
                 Intent intent = new Intent(v.getContext(), AddActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.flagBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //mSwipeView.doSwipe(true);
+                //Intent intent = new Intent(v.getContext(), AddActivity.class);
+                //startActivity(intent);
             }
         });
 
@@ -346,6 +376,49 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         return arto;
     }
 
+    public static Article APICallView() throws IOException {
+        try {
+            arto.ViewsNumber += 1;
+            URL url = new URL("http://mekonecampusapi.azurewebsites.net/api/Articles");
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+            httpCon.setDoOutput(true);
+            httpCon.setRequestMethod("PUT");
+
+            httpCon.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            String input = mapper.writeValueAsString(arto);
+            OutputStream os = httpCon.getOutputStream();
+            os.write(input.getBytes());
+            os.write(input.getBytes("UTF-8"));
+            os.flush();
+            os.close();
+            httpCon.connect();
+
+            if (httpCon.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + httpCon.getResponseCode());
+            }
+
+            //read the inputstream and print it
+            String result;
+            BufferedInputStream bis = new BufferedInputStream(httpCon.getInputStream());
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            int result2 = bis.read();
+            while(result2 != -1) {
+                buf.write((byte) result2);
+                result2 = bis.read();
+            }
+            result = buf.toString();
+            //System.out.println(result);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return arto;
+    }
+
     private static class EditArticle extends AsyncTask<Void, Void, Article> {
         private WeakReference<Activity> weakActivity;
         public EditArticle(Activity activity) {
@@ -359,6 +432,26 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             }
             try {
                 APICall();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    private static class IncreaseView extends AsyncTask<Void, Void, Article> {
+        private WeakReference<Activity> weakActivity;
+        public IncreaseView(Activity activity) {
+            weakActivity = new WeakReference<>(activity);
+        }
+        @Override
+        protected Article doInBackground(Void... voids) {
+            Activity activity = weakActivity.get();
+            if(activity == null) {
+                return null;
+            }
+            try {
+                APICallView();
             } catch (IOException e) {
                 e.printStackTrace();
             }
