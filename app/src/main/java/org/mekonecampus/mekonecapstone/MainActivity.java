@@ -11,6 +11,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -61,10 +62,11 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     //static int count = 0;
     static List<Article> articles = new ArrayList<>();
     static Article arto = new Article();
+    static Article fArto = new Article();
     static Visitor visito = new Visitor();
     static String myAddress;
-    static Double longi;
-    static Double lati;
+    static Double longi = 0.0;
+    static Double lati = 0.0;
     static String zipcode;
     static String myState;
     static String myCountry;
@@ -108,37 +110,44 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             mSwipeView.addView(new TinderCard(mContext, profile, cardViewHolderSize, this));
         }*/
 
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
-        }
-        else{
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            longi = location.getLongitude();
-            lati= location.getLatitude();
+        try {
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
+            } else {
+                Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                longi = location.getLongitude();
+                lati = location.getLatitude();
+            }
+        }catch (Exception ex){
+            Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
         Geocoder gCoder = new Geocoder(mContext);
-        List<Address> addresses = null;
-        if(lati != null) {
-            if(longi != null) {
-                try {
-                    addresses = gCoder.getFromLocation(lati, longi, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
+        try {
+            List<Address> addresses = null;
+            if (lati != null) {
+                if (longi != null) {
+                    try {
+                        addresses = gCoder.getFromLocation(lati, longi, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-        }
-        if (addresses != null && addresses.size() > 0) {
-            myAddress = addresses.get(0).getAddressLine(0);
-            String[] adds = myAddress.split(" ");
-            myHome = adds[0];
-            myApartment = addresses.get(0).getAddressLine(1);
-            myState = adds[adds.length - 3];
-            myCountry = adds[adds.length - 1];
-            zipcode = adds[adds.length - 2].replace(',', ' ');
-            Toast.makeText(mContext, zipcode, Toast.LENGTH_LONG).show();
+            if (addresses != null && addresses.size() > 0) {
+                myAddress = addresses.get(0).getAddressLine(0);
+                String[] adds = myAddress.split(" ");
+                myHome = adds[0];
+                myApartment = addresses.get(0).getAddressLine(1);
+                myState = adds[adds.length - 3];
+                myCountry = adds[adds.length - 1];
+                zipcode = adds[adds.length - 2].replace(',', ' ');
+                Toast.makeText(mContext, zipcode, Toast.LENGTH_LONG).show();
+            }
+        }catch (Exception ex){
+            Toast.makeText(this, "Geocoder error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
         Article a = new Article();
@@ -170,7 +179,9 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         visito.Mobile = lati.toString();
         visito.Status = "active";
         visito.VisitDate = df.format(calobj.getTime());
-        visito.NetworkIP = "";
+        visito.NetworkIP = android.os.Build.DEVICE;
+        visito.UrlReferer = android.os.Build.MODEL;
+        visito.RawUrlPage = Build.MANUFACTURER;
         visito.PartitionKey = "sokika";
         visito.RowKey = dt;
         //visito.Key = "";
@@ -189,31 +200,36 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             e.printStackTrace();
         }
         //get most recent articles
-        for (Article article : articles) {
-            if(article.Custom2 != null) {
-                if(article.Custom4 != null) {
-                    if (!article.Custom4.equals("flagged")) {
-                        if (article.Custom2.equals(zipcode) || article.Custom3.equals("Centre Polyvalent")) {
-                            arto = article;
-                            arto.ViewsNumber += 1;
-                            //call api
-                            if (!a.Custom4.equals("ok")) {
-                                try {
-                                    new IncreaseView(this).execute();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+        try {
+            for (Article article : articles) {
+                if (article.Custom2 != null) {
+                    if (article.Custom4 != null) {
+                        if (!article.Custom4.equals("flagged")) {
+                            if (article.Custom2.equals(zipcode) || article.Custom3.equals("Centre Polyvalent")) {
+                                arto = article;
+                                arto.ViewsNumber += 1;
+                                //call api
+                                if (!a.Custom4.equals("ok")) {
+                                    try {
+                                        new IncreaseView(this).execute();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
                                 mSwipeView.addView(new TinderCard(mContext, article, cardViewHolderSize, this));
+                            }
                         }
                     }
                 }
             }
+        }catch (Exception ex){
+            Toast.makeText(this, "Query error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
         findViewById(R.id.rejectBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fArto = null;
                 mSwipeView.doSwipe(false);
             }
         });
@@ -230,9 +246,14 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         findViewById(R.id.flagBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //mSwipeView.doSwipe(true);
-                //Intent intent = new Intent(v.getContext(), AddActivity.class);
-                //startActivity(intent);
+                arto = fArto; //articles.get(0);
+                //call api
+                try {
+                    new EditArticle(MainActivity.this).execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Toast.makeText(MainActivity.this, "Thanks for cleaning up!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -259,13 +280,6 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     @Override
     public void onSwipeUp() {
         //Toast.makeText(this, "Awesome!!!", Toast.LENGTH_SHORT).show();
-        arto = articles.get(0);
-        //call api
-        try {
-            new EditArticle(this).execute();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         isToUndo = true;
     }
 

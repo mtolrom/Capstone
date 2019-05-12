@@ -89,33 +89,40 @@ public class AddActivity extends AppCompatActivity {
         imgB = findViewById(R.id.imageBtn);
         notes = findViewById(R.id.editNotes);
 
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
-        }
-        else{
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            longi = location.getLongitude();
-            lati= location.getLatitude();
+        try {
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
+            } else {
+                Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                longi = location.getLongitude();
+                lati = location.getLatitude();
+            }
+        }catch (Exception ex){
+            Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
         Geocoder gCoder = new Geocoder(mContext);
-        List<Address> addresses = null;
         try {
-            addresses = gCoder.getFromLocation(lati, longi, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (addresses != null && addresses.size() > 0) {
-            myAddress = addresses.get(0).getAddressLine(0);
-            String[] adds = myAddress.split(" ");
-            myHome = adds[0];
-            myApartment = addresses.get(0).getAddressLine(1);
-            myState = adds[adds.length - 3];
-            myCountry = adds[adds.length - 1];
-            zipcode = adds[adds.length - 2].replace(',', ' ');
-            //Toast.makeText(mContext, longi + " - " + lati, Toast.LENGTH_LONG).show();
+            List<Address> addresses = null;
+            try {
+                addresses = gCoder.getFromLocation(lati, longi, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (addresses != null && addresses.size() > 0) {
+                myAddress = addresses.get(0).getAddressLine(0);
+                String[] adds = myAddress.split(" ");
+                myHome = adds[0];
+                myApartment = addresses.get(0).getAddressLine(1);
+                myState = adds[adds.length - 3];
+                myCountry = adds[adds.length - 1];
+                zipcode = adds[adds.length - 2].replace(',', ' ');
+                //Toast.makeText(mContext, longi + " - " + lati, Toast.LENGTH_LONG).show();
+            }
+        }catch (Exception ex){
+            Toast.makeText(this, "Geocoder error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
         findViewById(R.id.imageBtn).setOnClickListener(new View.OnClickListener() {
