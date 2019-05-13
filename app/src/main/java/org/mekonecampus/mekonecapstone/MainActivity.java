@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         mContext = getApplicationContext();
         activity = MainActivity.this;
         mSwipeView = (SwipeDirectionalView) findViewById(R.id.swipeView);
-        mContext = getApplicationContext();
 
         int bottomMargin = Utils.dpToPx(160);
         Point windowSize = Utils.getDisplaySize(getWindowManager());
@@ -105,10 +104,6 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
 
 
         Point cardViewHolderSize = new Point(windowSize.x, windowSize.y - bottomMargin);
-
-        /*for (Profile profile : Utils.loadProfiles(this.getApplicationContext())) {
-            mSwipeView.addView(new TinderCard(mContext, profile, cardViewHolderSize, this));
-        }*/
 
         try {
             LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -207,6 +202,10 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                         if (!article.Custom4.equals("flagged")) {
                             if (article.Custom2.equals(zipcode) || article.Custom3.equals("Centre Polyvalent")) {
                                 arto = article;
+                                String[] tp = arto.Body.split(",");
+                                if(tp.length > 2) {
+                                    arto.Body = tp[0] + tp[1];
+                                }
                                 arto.ViewsNumber += 1;
                                 //call api
                                 if (!a.Custom4.equals("ok")) {
@@ -246,14 +245,16 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         findViewById(R.id.flagBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                arto = fArto; //articles.get(0);
-                //call api
-                try {
-                    new EditArticle(MainActivity.this).execute();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                arto = fArto;
+                if(arto != null) {
+                    //call api
+                    try {
+                        new EditArticle(MainActivity.this).execute();
+                        Toast.makeText(MainActivity.this, "Thanks for cleaning up!", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-                Toast.makeText(MainActivity.this, "Thanks for cleaning up!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -322,29 +323,11 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
 
             int rCode = httpCon.getResponseCode();
 
-            /*if (httpCon.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + httpCon.getResponseCode());
-            }*/
-
-            //read the inputstream and print it
-            /*String result;
-            BufferedInputStream bis = new BufferedInputStream(httpCon.getInputStream());
-            ByteArrayOutputStream buf = new ByteArrayOutputStream();
-            int result2 = bis.read();
-            while(result2 != -1) {
-                buf.write((byte) result2);
-                result2 = bis.read();
-            }
-            result = buf.toString();*/
-            //System.out.println(result);
-
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //return visito;
     }
 
     public static Article APICall() throws IOException {

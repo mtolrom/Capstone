@@ -89,6 +89,16 @@ public class AddActivity extends AppCompatActivity {
         imgB = findViewById(R.id.imageBtn);
         notes = findViewById(R.id.editNotes);
 
+        Intent intent = getIntent();
+        Bundle b = intent.getExtras();
+        String uploadSuccess = "";
+
+        assert b != null;
+        if (b != null) {
+            uploadSuccess = b.getString("myUpload");
+        }
+        Toast.makeText(this, uploadSuccess, Toast.LENGTH_SHORT).show();
+
         try {
             LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -177,6 +187,9 @@ public class AddActivity extends AppCompatActivity {
 
                 arto.Id = "mekonecampus";
                 arto.Title = notes.getText().toString();
+                if(arto.Title == null || arto.Title.length() == 0){
+                    arto.Title = "Surprise, Surprise!!!";
+                }
                 arto.Body = myAddress;
                 arto.Custom3 = date;
                 arto.Category = category;
@@ -200,6 +213,7 @@ public class AddActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Intent intent = new Intent(v.getContext(), AddActivity.class);
+                intent.putExtra("myUpload", "Image upload successful!");
                 startActivity(intent);
             }
         });
