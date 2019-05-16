@@ -102,7 +102,7 @@ public class AddActivity extends AppCompatActivity {
             Toast.makeText(this, uploadSuccess, Toast.LENGTH_SHORT).show();
         }
 
-        /*try {
+        try {
             LocationDetector myloc = new LocationDetector(
                     AddActivity.this);
             if (myloc.canGetLocation) {
@@ -112,9 +112,9 @@ public class AddActivity extends AppCompatActivity {
             }
         }catch (Exception ex){
             Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
-        }*/
+        }
 
-        try {
+        /*try {
             LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
@@ -127,7 +127,7 @@ public class AddActivity extends AppCompatActivity {
         }catch (Exception ex){
             //ex.printStackTrace();
             Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
-        }
+        }*/
 
         Geocoder gCoder = new Geocoder(mContext);
         try {
@@ -148,6 +148,7 @@ public class AddActivity extends AppCompatActivity {
                 Toast.makeText(mContext, myAddress, Toast.LENGTH_LONG).show();
             }
         }catch (Exception ex){
+            ex.printStackTrace();
             Toast.makeText(this, "Geocoder error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
@@ -245,8 +246,6 @@ public class AddActivity extends AppCompatActivity {
                 final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                 finalFile = new File(getRealPathFromURI(imageUri));
                 myUri = imageUri.toString();
-                imgB.setVisibility(View.INVISIBLE);
-                img.setVisibility(View.VISIBLE);
                 img.setImageBitmap(selectedImage);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
