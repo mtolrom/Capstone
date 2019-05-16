@@ -108,21 +108,31 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         Point cardViewHolderSize = new Point(windowSize.x, windowSize.y - bottomMargin);
 
         try {
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
+            } else {
+                Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                longi = location.getLongitude();
+                lati = location.getLatitude();
+            }
+        }catch (Exception ex){
+            //ex.printStackTrace();
+            Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
+        }
+
+        /*try {
             LocationDetector myloc = new LocationDetector(
                     MainActivity.this);
-            //double myLat = 0;
-            //double myLong = 0;
             if (myloc.canGetLocation) {
                 lati = myloc.getLatitude();
                 longi = myloc.getLongitude();
-
-                Log.v("get location values", Double.toString(lati)
-                        + "     " + Double.toString(longi));
-
+                //Log.v("get location values", Double.toString(lati) + "     " + Double.toString(longi));
             }
         }catch (Exception ex){
             Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
-        }
+        }*/
 
         Geocoder gCoder = new Geocoder(mContext);
         try {

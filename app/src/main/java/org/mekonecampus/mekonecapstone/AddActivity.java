@@ -87,7 +87,7 @@ public class AddActivity extends AppCompatActivity {
         mContext = getApplicationContext();
         activity = AddActivity.this;
         img = findViewById(R.id.imageV);
-        imgB = findViewById(R.id.imageBtn);
+        imgB = findViewById(R.id.imageV);
         notes = findViewById(R.id.editNotes);
 
         Intent intent = getIntent();
@@ -98,22 +98,34 @@ public class AddActivity extends AppCompatActivity {
         if (b != null) {
             uploadSuccess = b.getString("myUpload");
         }
-        Toast.makeText(this, uploadSuccess, Toast.LENGTH_SHORT).show();
+        if(!(uploadSuccess == null || uploadSuccess.length() == 0)) {
+            Toast.makeText(this, uploadSuccess, Toast.LENGTH_SHORT).show();
+        }
 
-        try {
+        /*try {
             LocationDetector myloc = new LocationDetector(
                     AddActivity.this);
-            //double myLat = 0;
-            //double myLong = 0;
             if (myloc.canGetLocation) {
                 lati = myloc.getLatitude();
                 longi = myloc.getLongitude();
-
-                Log.v("get location values", Double.toString(lati)
-                        + "     " + Double.toString(longi));
-
+                //Log.v("get location values", Double.toString(lati) + "     " + Double.toString(longi));
             }
         }catch (Exception ex){
+            Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
+        }*/
+
+        try {
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
+            } else {
+                Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                longi = location.getLongitude();
+                lati = location.getLatitude();
+            }
+        }catch (Exception ex){
+            //ex.printStackTrace();
             Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
@@ -133,13 +145,13 @@ public class AddActivity extends AppCompatActivity {
                 myState = adds[adds.length - 3];
                 myCountry = adds[adds.length - 1];
                 zipcode = adds[adds.length - 2].replace(',', ' ');
-                //Toast.makeText(mContext, longi + " - " + lati, Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, myAddress, Toast.LENGTH_LONG).show();
             }
         }catch (Exception ex){
             Toast.makeText(this, "Geocoder error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
-        findViewById(R.id.imageBtn).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.imageV).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
