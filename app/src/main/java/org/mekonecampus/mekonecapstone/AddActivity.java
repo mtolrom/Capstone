@@ -64,7 +64,6 @@ public class AddActivity extends AppCompatActivity {
     static String category = "sokika";
     static Article arto = new Article();
     static ImageView img;
-    static ImageView imgB;
     static EditText notes;
     static File finalFile;
     static String picName;
@@ -87,7 +86,6 @@ public class AddActivity extends AppCompatActivity {
         mContext = getApplicationContext();
         activity = AddActivity.this;
         img = findViewById(R.id.imageV);
-        imgB = findViewById(R.id.imageV);
         notes = findViewById(R.id.editNotes);
 
         Intent intent = getIntent();
