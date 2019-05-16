@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
 
         Point cardViewHolderSize = new Point(windowSize.x, windowSize.y - bottomMargin);
 
-        try {
+        /*try {
             LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
@@ -118,21 +118,20 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                 lati = location.getLatitude();
             }
         }catch (Exception ex){
-            //ex.printStackTrace();
+            ex.printStackTrace();
             Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
-        }
+        }*/
 
-        /*try {
+        try {
             LocationDetector myloc = new LocationDetector(
                     MainActivity.this);
             if (myloc.canGetLocation) {
                 lati = myloc.getLatitude();
                 longi = myloc.getLongitude();
-                //Log.v("get location values", Double.toString(lati) + "     " + Double.toString(longi));
             }
         }catch (Exception ex){
             Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
-        }*/
+        }
 
         Geocoder gCoder = new Geocoder(mContext);
         try {
@@ -157,6 +156,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                 Toast.makeText(mContext, zipcode, Toast.LENGTH_LONG).show();
             }
         }catch (Exception ex){
+            ex.printStackTrace();
             Toast.makeText(this, "Geocoder error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
