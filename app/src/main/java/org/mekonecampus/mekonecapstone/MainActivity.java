@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     private int mAnimationDuration = 300;
     private boolean isToUndo = false;
     static String category = "sokika";
-    //static int count = 0;
     static List<Article> articles = new ArrayList<>();
     static Article arto = new Article();
     static Article fArto = new Article();
@@ -104,23 +103,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                         .setSwipeInMsgLayoutId(R.layout.tinder_swipe_in_msg_view)
                         .setSwipeOutMsgLayoutId(R.layout.tinder_swipe_out_msg_view));
 
-
         Point cardViewHolderSize = new Point(windowSize.x, windowSize.y - bottomMargin);
-
-        /*try {
-            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 200);
-            } else {
-                Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                longi = location.getLongitude();
-                lati = location.getLatitude();
-            }
-        }catch (Exception ex){
-            ex.printStackTrace();
-            Toast.makeText(this, "Location error, please reload!", Toast.LENGTH_SHORT).show();
-        }*/
 
         try {
             LocationDetector myloc = new LocationDetector(
@@ -217,10 +200,6 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                         if (!article.Custom4.equals("flagged")) {
                             if (article.Custom2.equals(zipcode) || article.Custom3.equals("Centre Polyvalent")) {
                                 arto = article;
-                                String[] tp = arto.Body.split(",");
-                                if(tp.length > 2) {
-                                    arto.Body = tp[0] + tp[1];
-                                }
                                 arto.ViewsNumber += 1;
                                 //call api
                                 if (!a.Custom4.equals("ok")) {
@@ -243,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         findViewById(R.id.rejectBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fArto = null;
                 mSwipeView.doSwipe(false);
             }
         });
@@ -260,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         findViewById(R.id.flagBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                arto = fArto;
+                arto = null;
                 if(arto != null) {
                     //call api
                     try {
@@ -270,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                         e.printStackTrace();
                     }
                 }
+                Toast.makeText(MainActivity.this, "Thanks for cleaning up!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -522,4 +501,5 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         }
     }
 }
+
 
