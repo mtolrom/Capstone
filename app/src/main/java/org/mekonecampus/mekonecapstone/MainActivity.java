@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     static String category = "sokika";
     static List<Article> articles = new ArrayList<>();
     static Article arto = new Article();
-    static Article fArto = new Article();
     static Visitor visito = new Visitor();
     static String myAddress;
     static Double longi = 0.0;
@@ -289,26 +288,13 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         findViewById(R.id.flagBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*arto = null;
-                if(arto != null) {
-                    //call api
-                    try {
-                        new EditArticle(MainActivity.this).execute();
-                        Toast.makeText(MainActivity.this, "Thanks for cleaning up!", Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                Toast.makeText(MainActivity.this, "Thanks for cleaning up!", Toast.LENGTH_SHORT).show();*/
+                //
             }
         });
 
         findViewById(R.id.undoBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //mSwipeView.undoLastSwipe();
-                //Intent intent = new Intent(v.getContext(), MainActivity.class);
-                //startActivity(intent);
                 Intent intent = new Intent(v.getContext(), MainActivity.class);
                 intent.putExtra("zp", customzip.getText().toString());
                 startActivity(intent);
