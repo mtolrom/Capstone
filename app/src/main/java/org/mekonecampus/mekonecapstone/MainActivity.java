@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     static String myHome;
     static String myApartment;
     static int flago = 0;
+    static EditText customzip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +146,25 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         }catch (Exception ex){
             ex.printStackTrace();
             Toast.makeText(this, "Geocoder error, please reload!", Toast.LENGTH_SHORT).show();
+        }
+
+        customzip = (EditText)findViewById(R.id.flagBtn);
+        customzip.setText(zipcode);
+        Intent intent = getIntent();
+        Bundle boo = intent.getExtras();
+
+        assert boo != null;
+        if (boo != null) {
+            if (boo.getString("zp") != null) {
+                if(boo.getString("zp").length() != 0) {
+                    zipcode = boo.getString("zp");
+                    customzip.setText(zipcode);
+                }else{
+                    customzip.setText(zipcode);
+                }
+            }else{
+                customzip.setText(zipcode);
+            }
         }
 
         Article a = new Article();
@@ -268,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         findViewById(R.id.flagBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                arto = null;
+                /*arto = null;
                 if(arto != null) {
                     //call api
                     try {
@@ -278,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                         e.printStackTrace();
                     }
                 }
-                Toast.makeText(MainActivity.this, "Thanks for cleaning up!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Thanks for cleaning up!", Toast.LENGTH_SHORT).show();*/
             }
         });
 
@@ -286,7 +307,10 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             @Override
             public void onClick(View v) {
                 //mSwipeView.undoLastSwipe();
+                //Intent intent = new Intent(v.getContext(), MainActivity.class);
+                //startActivity(intent);
                 Intent intent = new Intent(v.getContext(), MainActivity.class);
+                intent.putExtra("zp", customzip.getText().toString());
                 startActivity(intent);
             }
         });
