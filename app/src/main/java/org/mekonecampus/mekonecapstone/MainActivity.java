@@ -37,6 +37,7 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -49,6 +50,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.mekonecampus.mekonecapstone.AddActivity.img;
 import static org.mekonecampus.mekonecapstone.AddActivity.lati;
 import static org.mekonecampus.mekonecapstone.AddActivity.longi;
 import static org.mekonecampus.mekonecapstone.AddActivity.myAddress;
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     static String mySecondLineAddr;
     static String myHome;
     static String myApartment;
+    static int flago = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,8 +155,32 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         a.Custom4 = "ok";
         a.Custom5 = "WA";
         a.DateCreated = "09/15/2011";
-        a.Body = "Bellevue WA";
+        a.Body = "Bellevue WA, United States";
         articles.add(a);
+
+        Article b = new Article();
+        b.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/boule.jpeg";
+        b.Title = "Boule de manioc";
+        b.Custom2 = "98007";
+        b.Category = category;
+        b.Custom3 = "Au pays Ngambaye";
+        b.Custom4 = "ok";
+        b.Custom5 = "WA";
+        b.DateCreated = "12/15/2015";
+        b.Body = "Moundou Chad (Central Africa)";
+        articles.add(b);
+
+        Article c = new Article();
+        c.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/july.jpg";
+        c.Title = "MékonéCampus";
+        c.Custom2 = "98007";
+        c.Category = category;
+        c.Custom3 = "Centre Polyvalent";
+        c.Custom4 = "ok";
+        c.Custom5 = "WA";
+        c.DateCreated = "09/15/2011";
+        c.Body = "Moundou Chad (Central Africa)";
+        articles.add(c);
 
         DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
         Calendar calobj = Calendar.getInstance();
@@ -198,7 +225,9 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                 if (article.Custom2 != null) {
                     if (article.Custom4 != null) {
                         if (!article.Custom4.equals("flagged")) {
-                            if (article.Custom2.equals(zipcode) || article.Custom3.equals("Centre Polyvalent")) {
+                            if (article.Custom2.equals(zipcode)
+                                    || article.Custom3.equals("Centre Polyvalent")
+                                    || article.Custom3.equals("Au pays Ngambaye")) {
                                 arto = article;
                                 arto.ViewsNumber += 1;
                                 //call api
@@ -215,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                     }
                 }
             }
+            flago = articles.size();
         }catch (Exception ex){
             Toast.makeText(this, "Query error, please reload!", Toast.LENGTH_SHORT).show();
         }
@@ -316,6 +346,10 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             httpCon.connect();
 
             int rCode = httpCon.getResponseCode();
+            /*if (httpCon.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + httpCon.getResponseCode());
+            }*/
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
