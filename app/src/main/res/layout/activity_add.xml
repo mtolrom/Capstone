@@ -77,18 +77,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorPrimaryDark"
+                    android:background="@null"
+                    android:hint="notes or restaurant name"
                     android:maxLength="35"
                     android:textSize="14dp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/locationNameTxt"
+                <EditText
+                    android:id="@+id/editWebsite"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="notes or restaurant name"
                     android:textColor="@color/colorPrimaryDark"
+                    android:background="@null"
+                    android:hint="www.mylocalseattlefarm.com"
+                    android:maxLength="35"
                     android:textSize="14dp"
-                    android:textStyle="normal" />
+                    android:textStyle="bold" />
+
             </LinearLayout>
         </android.support.v7.widget.CardView>
     </LinearLayout>

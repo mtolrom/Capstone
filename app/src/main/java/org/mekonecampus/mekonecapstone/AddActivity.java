@@ -65,6 +65,7 @@ public class AddActivity extends AppCompatActivity {
     static Article arto = new Article();
     static ImageView img;
     static EditText notes;
+    static EditText website;
     static File finalFile;
     static String picName;
     static String myUri;
@@ -87,6 +88,7 @@ public class AddActivity extends AppCompatActivity {
         activity = AddActivity.this;
         img = findViewById(R.id.imageV);
         notes = findViewById(R.id.editNotes);
+        website = findViewById(R.id.editWebsite);
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
@@ -165,6 +167,7 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), MainActivity.class);
+                intent.putExtra("zp", "ok");
                 startActivity(intent);
             }
         });
@@ -187,7 +190,7 @@ public class AddActivity extends AppCompatActivity {
                 arto.Id = "mekonecampus";
                 arto.Title = notes.getText().toString();
                 if(arto.Title == null || arto.Title.length() == 0){
-                    arto.Title = "Surprise, Surprise!!!";
+                    arto.Title = "WONDER, SEEK, DISCOVER";
                 }
                 arto.Body = myAddress;
                 arto.Custom3 = date;
@@ -203,7 +206,10 @@ public class AddActivity extends AppCompatActivity {
                 arto.Custom2 = zipcode;
                 arto.Custom1 = myCountry;
                 arto.Custom5 = myState;
-                arto.Custom4 = "ok";
+                arto.Custom4 = website.getText().toString();
+                if(arto.Custom4 == null || arto.Custom4.length() == 0){
+                    arto.Custom4 = "ok";
+                }
 
                 //call api
                 try {
