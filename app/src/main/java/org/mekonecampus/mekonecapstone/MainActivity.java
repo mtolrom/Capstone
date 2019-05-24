@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     static String mySecondLineAddr;
     static String myHome;
     static String myApartment;
-    static int flago = 0;
     static EditText customzip;
 
     @Override
@@ -166,6 +165,15 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             }
         }
 
+        if(zipcode == null || zipcode.length() == 0){
+            //
+        }else{
+            if(zipcode.trim().equals("local")){
+                Intent inte = new Intent(mContext, FarmActivity.class);
+                startActivity(inte);
+            }
+        }
+
         Article a = new Article();
         a.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/diasporaLogoBig.JPG";
         a.Title = "MékonéCampus";
@@ -248,23 +256,24 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                             if (article.Custom2.equals(zipcode)
                                     || article.Custom3.equals("Centre Polyvalent")
                                     || article.Custom3.equals("Au pays Ngambaye")) {
-                                arto = article;
-                                arto.ViewsNumber += 1;
-                                //call api
-                                if (!a.Custom4.equals("ok")) {
-                                    try {
-                                        new IncreaseView(this).execute();
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
+                                if (article.Custom4.equals("ok")) {
+                                    arto = article;
+                                    //arto.ViewsNumber += 1;
+                                    //call api
+                                    /*if (!a.Custom4.equals("ok")) {
+                                        try {
+                                            new IncreaseView(this).execute();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }*/
+                                    mSwipeView.addView(new TinderCard(mContext, article, cardViewHolderSize, this));
                                 }
-                                mSwipeView.addView(new TinderCard(mContext, article, cardViewHolderSize, this));
                             }
                         }
                     }
                 }
             }
-            flago = articles.size();
         }catch (Exception ex){
             Toast.makeText(this, "Query error, please reload!", Toast.LENGTH_SHORT).show();
         }
