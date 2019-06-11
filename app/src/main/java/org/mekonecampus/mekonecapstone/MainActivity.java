@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
     static String mySecondLineAddr;
     static String myHome;
     static String myApartment;
-    static EditText customzip;
+    //static EditText customzip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,38 +139,23 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                 myState = adds[adds.length - 3];
                 myCountry = adds[adds.length - 1];
                 zipcode = adds[adds.length - 2].replace(',', ' ');
-                Toast.makeText(mContext, zipcode, Toast.LENGTH_LONG).show();
+                //Toast.makeText(mContext, "current : " + zipcode, Toast.LENGTH_LONG).show();
             }
         }catch (Exception ex){
             ex.printStackTrace();
             Toast.makeText(this, "Geocoder error, please reload!", Toast.LENGTH_SHORT).show();
         }
 
-        customzip = (EditText)findViewById(R.id.flagBtn);
-        customzip.setText(zipcode);
         Intent intent = getIntent();
         Bundle boo = intent.getExtras();
 
         assert boo != null;
         if (boo != null) {
-            if (boo.getString("zp") != null) {
-                if(boo.getString("zp").length() != 0) {
-                    zipcode = boo.getString("zp");
-                    customzip.setText(zipcode);
-                }else{
-                    customzip.setText(zipcode);
+            if (boo.getString("myZipo") != null) {
+                if (boo.getString("myZipo").length() != 0) {
+                    zipcode = boo.getString("myZipo").trim();
+                    Toast.makeText(mContext, "settings zip : " + zipcode, Toast.LENGTH_LONG).show();
                 }
-            }else{
-                customzip.setText(zipcode);
-            }
-        }
-
-        if(zipcode == null || zipcode.length() == 0){
-            //
-        }else{
-            if(zipcode.trim().equals("local")){
-                Intent inte = new Intent(mContext, FarmActivity.class);
-                startActivity(inte);
             }
         }
 
@@ -253,20 +238,12 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                 if (article.Custom2 != null) {
                     if (article.Custom4 != null) {
                         if (!article.Custom4.equals("flagged")) {
-                            if (article.Custom2.equals(zipcode)
+                            String str = article.Custom2.trim();
+                            if (str.equals(zipcode)
                                     || article.Custom3.equals("Centre Polyvalent")
                                     || article.Custom3.equals("Au pays Ngambaye")) {
                                 if (article.Custom4.equals("ok")) {
                                     arto = article;
-                                    //arto.ViewsNumber += 1;
-                                    //call api
-                                    /*if (!a.Custom4.equals("ok")) {
-                                        try {
-                                            new IncreaseView(this).execute();
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    }*/
                                     mSwipeView.addView(new TinderCard(mContext, article, cardViewHolderSize, this));
                                 }
                             }
@@ -274,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
                     }
                 }
             }
+            //Toast.makeText(mContext, mSwipeView.getChildCount() + " items at " + zipcode, Toast.LENGTH_LONG).show();
         }catch (Exception ex){
             Toast.makeText(this, "Query error, please reload!", Toast.LENGTH_SHORT).show();
         }
@@ -290,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             public void onClick(View v) {
                 //mSwipeView.doSwipe(true);
                 Intent intent = new Intent(v.getContext(), AddActivity.class);
+                intent.putExtra("myZipo", zipcode);
                 startActivity(intent);
             }
         });
@@ -297,7 +276,9 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
         findViewById(R.id.flagBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //
+                Intent intent = new Intent(v.getContext(), FarmActivity.class);
+                intent.putExtra("myZipo", zipcode);
+                startActivity(intent);
             }
         });
 
@@ -305,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements TinderCard.Callba
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), MainActivity.class);
-                intent.putExtra("zp", customzip.getText().toString());
+                intent.putExtra("myZipo", zipcode);
                 startActivity(intent);
             }
         });

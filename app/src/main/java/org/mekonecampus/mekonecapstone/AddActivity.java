@@ -73,6 +73,7 @@ public class AddActivity extends AppCompatActivity {
     static Double longi;
     static Double lati;
     static String zipcode;
+    static String realZipCode;
     static String myState;
     static String myCountry;
     static String mySecondLineAddr;
@@ -129,11 +130,24 @@ public class AddActivity extends AppCompatActivity {
                 myState = adds[adds.length - 3];
                 myCountry = adds[adds.length - 1];
                 zipcode = adds[adds.length - 2].replace(',', ' ');
+                realZipCode = adds[adds.length - 2].replace(',', ' ');
                 Toast.makeText(mContext, myAddress, Toast.LENGTH_LONG).show();
             }
         }catch (Exception ex){
             ex.printStackTrace();
             Toast.makeText(this, "Geocoder error, please reload!", Toast.LENGTH_SHORT).show();
+        }
+
+        Intent intenta = getIntent();
+        Bundle boo = intenta.getExtras();
+        assert boo != null;
+        if (boo != null) {
+            if (boo.getString("myZipo") != null) {
+                if (boo.getString("myZipo").length() != 0) {
+                    zipcode = boo.getString("myZipo");
+                    //Toast.makeText(mContext, "settings zip : " + zipcode, Toast.LENGTH_LONG).show();
+                }
+            }
         }
 
         findViewById(R.id.imageV).setOnClickListener(new View.OnClickListener() {
@@ -149,6 +163,7 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), AddActivity.class);
+                intent.putExtra("myZipo", zipcode);
                 startActivity(intent);
             }
         });
@@ -167,7 +182,7 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), MainActivity.class);
-                intent.putExtra("zp", "ok");
+                intent.putExtra("myZipo", zipcode);
                 startActivity(intent);
             }
         });
@@ -181,45 +196,51 @@ public class AddActivity extends AppCompatActivity {
                 String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
                 //call api 2
-                try {
-                    new UploadImage(AddActivity.this).execute();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                if(finalFile != null) {
+                    try {
+                        new UploadImage(AddActivity.this).execute();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
-                arto.Id = "mekonecampus";
-                arto.Title = notes.getText().toString();
-                if(arto.Title == null || arto.Title.length() == 0){
-                    arto.Title = "WONDER, SEEK, DISCOVER";
-                }
-                arto.Body = myAddress;
-                arto.Custom3 = date;
-                arto.Category = category;
-                arto.LikesNumber = 0;
-                arto.ViewsNumber = 0;
-                arto.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/" + picName;
-                arto.PartitionKey = "sokika";
-                arto.RowKey = dt;
-                arto.DateCreated = df.format(calobj.getTime());
-                arto.Status = "active";
-                arto.Custom5 = "mekonecampus";
-                arto.Custom2 = zipcode;
-                arto.Custom1 = myCountry;
-                arto.Custom5 = myState;
-                arto.Custom4 = website.getText().toString();
-                if(arto.Custom4 == null || arto.Custom4.length() == 0){
-                    arto.Custom4 = "ok";
-                }
+                    arto.Id = "mekonecampus";
+                    arto.Title = notes.getText().toString();
+                    if (arto.Title == null || arto.Title.length() == 0) {
+                        arto.Title = "WONDER, SEEK, DISCOVER";
+                    }
+                    arto.Body = myAddress;
+                    arto.Custom3 = date;
+                    arto.Category = category;
+                    arto.LikesNumber = 0;
+                    arto.ViewsNumber = 0;
+                    arto.PicUrl = "https://mekonecampusapistorage.blob.core.windows.net/campusimages/" + picName;
+                    arto.PartitionKey = "sokika";
+                    arto.RowKey = dt;
+                    arto.DateCreated = df.format(calobj.getTime());
+                    arto.Status = "active";
+                    arto.Custom5 = "mekonecampus";
+                    arto.Custom2 = realZipCode.trim();
+                    arto.Custom1 = myCountry;
+                    arto.Custom5 = myState;
+                    arto.Custom4 = website.getText().toString();
+                    if (arto.Custom4 == null || arto.Custom4.length() == 0) {
+                        arto.Custom4 = "ok";
+                    }
 
-                //call api
-                try {
-                    new CreateArticle(AddActivity.this).execute();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    //call api
+                    try {
+                        new CreateArticle(AddActivity.this).execute();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Intent intent = new Intent(v.getContext(), AddActivity.class);
+                    intent.putExtra("myUpload", "Image upload successful!");
+                    intent.putExtra("myZipo", zipcode);
+                    //finalFile = null;
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(mContext, "Please pick an image to upload.", Toast.LENGTH_LONG).show();
                 }
-                Intent intent = new Intent(v.getContext(), AddActivity.class);
-                intent.putExtra("myUpload", "Image upload successful!");
-                startActivity(intent);
             }
         });
     }

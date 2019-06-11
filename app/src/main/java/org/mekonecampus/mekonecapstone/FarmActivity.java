@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -20,11 +21,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +43,7 @@ public class FarmActivity extends AppCompatActivity {
     static Double longi = 0.0;
     static Double lati = 0.0;
     static String zipcode;
+    static String SettingZipcode;
     static String myState;
     static String myCountry;
     static String mySecondLineAddr;
@@ -86,11 +92,60 @@ public class FarmActivity extends AppCompatActivity {
                 myState = adds[adds.length - 3];
                 myCountry = adds[adds.length - 1];
                 zipcode = adds[adds.length - 2].replace(',', ' ');
-                Toast.makeText(mContext, zipcode, Toast.LENGTH_LONG).show();
+                SettingZipcode = adds[adds.length - 2].replace(',', ' ');
+                //Toast.makeText(mContext, zipcode, Toast.LENGTH_LONG).show();
             }
         }catch (Exception ex){
             ex.printStackTrace();
             Toast.makeText(this, "Geocoder error, please reload!", Toast.LENGTH_SHORT).show();
+        }
+
+        Intent intent = getIntent();
+        Bundle boo = intent.getExtras();
+
+        assert boo != null;
+        if (boo != null) {
+            if (boo.getString("myZipo") != null) {
+                if (boo.getString("myZipo").length() != 0) {
+                    zipcode = boo.getString("myZipo");
+                }
+            }
+            Toast.makeText(mContext, zipcode, Toast.LENGTH_LONG).show();
+        }
+
+        DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+        Calendar calobj = Calendar.getInstance();
+        String dt = df.format(calobj.getTime()).toString().replace('/', '-').replace(' ', '-').replace(':', '-');
+
+        visito.Browser = myAddress;
+        visito.BrowserDetails = myHome;
+        visito.Category = category;
+        visito.Custom1 = myState;
+        visito.Custom2 = myCountry;
+        visito.Custom3 = myApartment;
+        visito.Custom4 = mySecondLineAddr;
+        if(zipcode.trim().equals(SettingZipcode.trim())) {
+            visito.Custom5 = "same";
+        }else{
+            visito.Custom5 = SettingZipcode;
+        }
+        visito.Hostname = longi.toString();
+        visito.Id = "mekonecampus";
+        visito.Mobile = lati.toString();
+        visito.Status = "active";
+        visito.VisitDate = df.format(calobj.getTime());
+        visito.NetworkIP = android.os.Build.DEVICE;
+        visito.UrlReferer = android.os.Build.MODEL;
+        visito.RawUrlPage = Build.MANUFACTURER;
+        visito.PartitionKey = "sokika";
+        visito.RowKey = dt;
+        //visito.Key = "";
+
+        //call api
+        try {
+            new FarmActivity.CreateVisitor(this).execute();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         //call api
@@ -133,7 +188,7 @@ public class FarmActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent inta = new Intent(v.getContext(), MainActivity.class);
-                inta.putExtra("zp", "ok");
+                inta.putExtra("myZipo", zipcode);
                 startActivity(inta);
             }
         });
@@ -142,6 +197,7 @@ public class FarmActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), AddActivity.class);
+                intent.putExtra("myZipo", zipcode);
                 startActivity(intent);
             }
         });
@@ -149,7 +205,9 @@ public class FarmActivity extends AppCompatActivity {
         findViewById(R.id.flagBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(mContext, "Settings coming soon!", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(v.getContext(), SettingsActivity.class);
+                intent.putExtra("myZipo", zipcode);
+                startActivity(intent);
             }
         });
 
@@ -157,12 +215,60 @@ public class FarmActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), FarmActivity.class);
-                if(customzip != null) {
-                    intent.putExtra("zp", customzip.getText().toString());
-                }
+                intent.putExtra("myZipo", zipcode);
                 startActivity(intent);
             }
         });
+    }
+
+    private static class CreateVisitor extends AsyncTask<Void, Void, Visitor> {
+        private WeakReference<Activity> weakActivity;
+        public CreateVisitor(Activity activity) {
+            weakActivity = new WeakReference<>(activity);
+        }
+        @Override
+        protected Visitor doInBackground(Void... voids) {
+            Activity activity = weakActivity.get();
+            if(activity == null) {
+                return null;
+            }
+            try {
+                APICallVisitor();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    public static void APICallVisitor() throws IOException {
+        try {
+            URL url = new URL("http://mekonecampusapi.azurewebsites.net/api/Visitors");
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+            httpCon.setDoOutput(true);
+            httpCon.setRequestMethod("POST");
+
+            httpCon.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            String input = mapper.writeValueAsString(visito);
+            OutputStream os = httpCon.getOutputStream();
+            os.write(input.getBytes());
+            os.write(input.getBytes("UTF-8"));
+            os.flush();
+            os.close();
+            httpCon.connect();
+
+            int rCode = httpCon.getResponseCode();
+            /*if (httpCon.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + httpCon.getResponseCode());
+            }*/
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static List<Article> CallMekone(String category) throws IOException {
@@ -193,8 +299,10 @@ public class FarmActivity extends AppCompatActivity {
         for(int i = 0; i < mData.size(); i++){
             if(mData.get(i).Custom4.startsWith("www")){
                 if(zipcode != null) {
-                    if(mData.get(i).Custom2 != null) {
-                        if (mData.get(i).Custom2.equals(zipcode)) {
+                    String strZip = mData.get(i).Custom2.trim();
+                    if(strZip != null) {
+                        String strHere = zipcode.trim();
+                        if (strZip.equals(strHere)) {
                             artamis.add(mData.get(i));
                         }
                     }
