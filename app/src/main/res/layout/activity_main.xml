@@ -25,12 +25,12 @@
             android:layout_marginLeft="30dp"
             android:background="@drawable/ic_add_circle_black_24dp" />
 
-        <EditText
+        <ImageButton
             android:id="@+id/flagBtn"
-            android:layout_width="60dp"
-            android:hint="zip"
+            android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginLeft="30dp" />
+            android:layout_marginLeft="30dp"
+            android:background="@drawable/ic_list_black_24dp" />
 
         <ImageButton
             android:id="@+id/undoBtn"
